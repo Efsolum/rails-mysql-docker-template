@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-NODE_VERSION='6.2.2'
-ALPINE_VERSION='3.4'
+PROJECT_NAME=${PROJECT_NAME:-'project'}
 
-CONTAINER_USER=developer
+ALPINE_VERSION=${ALPINE_VERSION:-'3.4'}
+NODE_VERSION=${NODE_VERSION:-'6.2.0'}
+
+CONTAINER_USER=${CONTAINER_USER:-developer}
 TEMP_DIR=$(mktemp --directory rails-build-XXXXXXXX)
 
 docker_end() {
@@ -32,13 +34,30 @@ RUN apk update
 RUN apk add \
 					bash \
 					curl \
-					nodejs>=${NODE_VERSION} \
-					nodejs-dev>=${NODE_VERSION} \
+					freetype-dev \
+					g++ \
+					gcc \
+					git \
+					glib \
+					glib-dev \
+					gnupg \
+					libgcc \
+					libstdc++ \
+					libtool \
+					linux-headers \
+					make \
+					"nodejs-dev>=${NODE_VERSION}" \
+					"nodejs>=${NODE_VERSION}" \
+					openssl-dev \
 					openssl \
+					pango-dev \
+					poppler-dev \
+					python-dev \
 					sudo \
 					tar \
-				&& echo 'End of package list' \
-				rm -rf '/var/cache/apk/*'
+					zlib-dev \
+				&& echo 'End of package(s) installation.' \
+				&& rm -rf '/var/cache/apk/*'
 
 RUN mkdir \$NPM_CONFIG_PREFIX
 RUN bash -c 'npm install -g \
@@ -67,7 +86,9 @@ export NPM_CONFIG_PREFIX=/var/npm
 export PATH=\$NPM_CONFIG_PREFIX/bin:\$PATH
 EOF
 
-docker build -t "project/node-${NODE_VERSION}:latest" $TEMP_DIR
+docker build \
+			 --no-cache=false \
+			 --tag "${PROJECT_NAME}/node-${NODE_VERSION}:latest" $TEMP_DIR
 docker tag \
-			 "project/node-${NODE_VERSION}:latest" \
-			 "project/node-${NODE_VERSION}:$(date +%s)"
+			 "${PROJECT_NAME}/node-${NODE_VERSION}:latest" \
+			 "${PROJECT_NAME}/node-${NODE_VERSION}:$(date +%s)"

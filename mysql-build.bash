@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-MYSQL_MAJOR_VERSION=5.7
-# MYSQL_BUILD_VERSION=13
-# MYSQL_VERSION=${MYSQL_MAJOR_VERSION}.${MYSQL_BUILD_VERSION}
-ALPINE_VERSION='3.4'
+PROJECT_NAME=${PROJECT_NAME:-'project'}
+
+ALPINE_VERSION=${ALPINE_VERSION:-'3.4'}
+MYSQL_VERSION=${MYSQL_VERSION:-'10.1.14'}
+
+DATABASE_USER=${DATABASE_USER:-'app'}
+DATABASE_PASS=${DATABASE_PASS:-'password'}
 
 TEMP_DIR=$(mktemp --directory rails-build-XXXXXXXX)
 
@@ -30,8 +33,8 @@ RUN apk add \
 				bash \
 				ca-certificates \
 				git \
-				mysql \
-				mysql-client \
+				"mysql>=${MYSQL_VERSION}" \
+				"mysql-client>=${MYSQL_VERSION}" \
 			&& echo 'End of package list' \
 			&& rm -rf '/var/cache/apk/*'
 
@@ -61,6 +64,7 @@ cat <<EOF > $TEMP_DIR/mysql_startup.sh
 #!/usr/bin/env bash
 set -eo pipefail
 
+if [[ ! -f '/run/mysqld/mysql.initialized' ]]; then
 echo "Temporarily starting MySQL daemon"
 mysqld_safe &
 # mysqld_safe --skip-grant-tables --skip-syslog --skip-networking &
@@ -88,6 +92,10 @@ mysql \
 echo "Stopping MySQL daemon"
 mysqladmin shutdown
 
+touch /run/mysqld/mysql.initialized
+fi
+
+
 if [ ! -d "/run/mysqld" ]; then
     mkdir -p /run/mysqld
 fi
@@ -96,5 +104,9 @@ echo "Starting MySQL daemon"
 mysqld --user=mysql
 EOF
 
-docker build --tag='project/mysql-dbms:latest' $TEMP_DIR
-docker tag 'project/mysql-dbms:latest' "project/mysql-dbms:$(date +%s)"
+docker build \
+			 --no-cache=false \
+			 --tag="${PROJECT_NAME}/mysql-dbms-${MYSQL_VERSION}:latest" $TEMP_DIR
+docker tag \
+			 "${PROJECT_NAME}/mysql-dbms-${MYSQL_VERSION}:latest" \
+			 "${PROJECT_NAME}/mysql-dbms-${MYSQL_VERSION}:$(date +%s)"

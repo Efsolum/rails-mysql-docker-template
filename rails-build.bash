@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-RAILS_VERSION='4.2.6'
-RUBY_VERSION='2.3.1'
-RUBY_SHA256='b87c738cb2032bf4920fef8e3864dc5cf8eae9d89d8d523ce0236945c5797dcd'
-ALPINE_VERSION='3.4'
+PROJECT_NAME=${PROJECT_NAME:-'project'}
 
-CONTAINER_USER=developer
+ALPINE_VERSION=${ALPINE_VERSION:-'3.4'}
+RAILS_VERSION=${RAILS_VERSION:-'4.2.6'}
+RUBY_VERSION=${RUBY_VERSION:-'2.3.1'}
+RUBY_SHA256=${RUBY_SHA256:-'b87c738cb2032bf4920fef8e3864dc5cf8eae9d89d8d523ce0236945c5797dcd'}
+
+CONTAINER_USER=${CONTAINER_USER:-developer}
 TEMP_DIR=$(mktemp --directory rails-build-XXXXXXXX)
 
 docker_end() {
@@ -81,7 +83,7 @@ USER $CONTAINER_USER
 WORKDIR /var/www/projects
 
 EXPOSE 3000/tcp
-VOLUME /var/www/projects
+VOLUME ["/var/www/projects"]
 CMD sh -c 'kill -STOP \$$'
 EOF
 
@@ -126,7 +128,9 @@ source 'https://rubygems.org'
 gem 'rails', '~>${RAILS_VERSION}'
 EOF
 
-docker build -t "project/rails-${RUBY_VERSION}-${RAILS_VERSION}" $TEMP_DIR
+docker build \
+			 --no-cache=false \
+			 --tag "${PROJECT_NAME}/rails-${RUBY_VERSION}-${RAILS_VERSION}" $TEMP_DIR
 docker tag \
-			 "project/rails-${RUBY_VERSION}-${RAILS_VERSION}:latest" \
-			 "project/mysql-dbms:$(date +%s)"
+			 "${PROJECT_NAME}/rails-${RUBY_VERSION}-${RAILS_VERSION}:latest" \
+			 "${PROJECT_NAME}/mysql-dbms:$(date +%s)"
