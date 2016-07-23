@@ -40,8 +40,10 @@ RUN apk add \
 				bash \
 				build-base \
 				curl-dev \
+				gdbm-dev \
 				git \
 				libc-dev \
+				libffi-dev \
 				libxml2 \
 				libxml2-dev \
 				libxslt \
@@ -49,9 +51,12 @@ RUN apk add \
 				linux-headers \
 				mysql-client \
 				mysql-dev \
+				ncurses-libs \
 				nodejs \
 				openssl \
 				openssl-dev \
+				readline \
+				readline-dev \
 				sqlite-dev \
 				sudo \
 				tzdata \
