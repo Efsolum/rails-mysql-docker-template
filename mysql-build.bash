@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+[ -f './project.bash' ] && source './project.bash'
+
 PROJECT_NAME=${PROJECT_NAME:-'project'}
 
 ALPINE_VERSION=${ALPINE_VERSION:-'3.4'}

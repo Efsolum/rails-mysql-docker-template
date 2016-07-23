@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+[ -f './project.bash' ] && source './project.bash'
+
 PROJECT_NAME=${PROJECT_NAME:-'project'}
 
 RAILS_VERSION=${RAILS_VERSION:='4.2.6'}
