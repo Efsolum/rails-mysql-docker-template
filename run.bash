@@ -35,6 +35,7 @@ docker run \
 docker run \
 			 --detach=true \
 			 --name='rails-web' \
+			 --publish='3000:3000' \
 			 --volume="$(dirname $(pwd))/src:/var/www/projects" \
 			 "${PROJECT_NAME}/rails-${RUBY_VERSION}-${RAILS_VERSION}:latest"
 
